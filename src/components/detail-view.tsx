@@ -1,12 +1,14 @@
 import Image from "next/image";
 import { CastList } from "@/components/cast-list";
 import { Providers } from "@/components/providers";
+import { SimilarTitles } from "@/components/similar-titles";
 import {
   CountryProviders,
   imageUrl,
   MediaType,
   MovieDetails,
   Person,
+  SearchResult,
   TvDetails,
 } from "@/lib/tmdb";
 import { auth } from "@/auth";
@@ -18,9 +20,10 @@ interface DetailViewProps {
   details: MovieDetails | TvDetails;
   cast: Person[];
   allCountries: Record<string, CountryProviders>;
+  similar: SearchResult[];
 }
 
-export async function DetailView({ type, details, cast, allCountries }: DetailViewProps) {
+export async function DetailView({ type, details, cast, allCountries, similar }: DetailViewProps) {
   const session = await auth();
   const movie = type === "movie" ? (details as MovieDetails) : null;
   const tv = type === "tv" ? (details as TvDetails) : null;
@@ -98,6 +101,7 @@ export async function DetailView({ type, details, cast, allCountries }: DetailVi
             {session?.user?.tier !== "premium" && <AdUnit placement="native" />}
             <Providers allCountries={allCountries} title={title} year={date?.slice(0, 4) ?? ""} />
             <CastList cast={cast} />
+            <SimilarTitles items={similar} mediaType={type} />
           </div>
         </div>
       </div>

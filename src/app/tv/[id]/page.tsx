@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DetailView } from "@/components/detail-view";
-import { getCredits, getTv, getWatchProviders, imageUrl, TmdbError } from "@/lib/tmdb";
+import { getCredits, getSimilar, getTv, getWatchProviders, imageUrl, TmdbError } from "@/lib/tmdb";
 
 type Props = { params: Promise<{ id: string }> };
 
 async function loadTv(id: number) {
   try {
     const details = await getTv(id);
-    const [credits, providers] = await Promise.allSettled([
-      getCredits("tv", id), getWatchProviders("tv", id),
+    const [credits, providers, similar] = await Promise.allSettled([
+      getCredits("tv", id), getWatchProviders("tv", id), getSimilar("tv", id),
     ]);
     return {
       details,
       credits: credits.status === "fulfilled" ? credits.value : { id, cast: [] },
       providers: providers.status === "fulfilled" ? providers.value : { id, results: {} },
+      similar: similar.status === "fulfilled" ? similar.value.results : [],
     };
   } catch (error) {
     if (error instanceof TmdbError && error.status === 404) notFound();
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function TvPage({ params }: Props) {
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id <= 0) notFound();
-  const { details, credits, providers } = await loadTv(id);
+  const { details, credits, providers, similar } = await loadTv(id);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const schema = {
     "@context": "https://schema.org", "@type": "TVSeries", name: details.name,
@@ -67,6 +68,7 @@ export default async function TvPage({ params }: Props) {
       details={details}
       cast={credits.cast}
       allCountries={providers.results}
+      similar={similar}
     /></>
   );
 }

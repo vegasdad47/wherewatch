@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DetailView } from "@/components/detail-view";
-import { getCredits, getMovie, getWatchProviders, imageUrl, TmdbError } from "@/lib/tmdb";
+import { getCredits, getMovie, getSimilar, getWatchProviders, imageUrl, TmdbError } from "@/lib/tmdb";
 
 type Props = { params: Promise<{ id: string }> };
 
 async function loadMovie(id: number) {
   try {
     const details = await getMovie(id);
-    const [credits, providers] = await Promise.allSettled([
-      getCredits("movie", id), getWatchProviders("movie", id),
+    const [credits, providers, similar] = await Promise.allSettled([
+      getCredits("movie", id), getWatchProviders("movie", id), getSimilar("movie", id),
     ]);
     return {
       details,
       credits: credits.status === "fulfilled" ? credits.value : { id, cast: [] },
       providers: providers.status === "fulfilled" ? providers.value : { id, results: {} },
+      similar: similar.status === "fulfilled" ? similar.value.results : [],
     };
   } catch (error) {
     if (error instanceof TmdbError && error.status === 404) notFound();
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function MoviePage({ params }: Props) {
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id <= 0) notFound();
-  const { details, credits, providers } = await loadMovie(id);
+  const { details, credits, providers, similar } = await loadMovie(id);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const schema = {
     "@context": "https://schema.org",
@@ -69,6 +70,7 @@ export default async function MoviePage({ params }: Props) {
       details={details}
       cast={credits.cast}
       allCountries={providers.results}
+      similar={similar}
     /></>
   );
 }

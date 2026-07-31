@@ -226,3 +226,17 @@ export function getTrendingByRegion(region: string, page = 1) {
       }),
   );
 }
+
+export function getSimilar(type: MediaType, id: number) {
+  const endpoint = `/${type}/${id}/similar`;
+  return withCache(makeCacheKey(endpoint), CACHE_TTL.trending, () =>
+    tmdbFetch<SearchResponse>(endpoint, { include_adult: "false" }),
+  );
+}
+
+export function getRecommendations(type: MediaType, id: number) {
+  const endpoint = `/${type}/${id}/recommendations`;
+  return withCache(makeCacheKey(endpoint), CACHE_TTL.trending, () =>
+    tmdbFetch<SearchResponse>(endpoint, { include_adult: "false" }),
+  );
+}
