@@ -44,6 +44,13 @@ function getProviderUrl(provider: Provider, title: string, year: string): string
   return null;
 }
 
+const GROUP_STYLES: Record<string, { icon: string; border: string; bg: string }> = {
+  Subscription: { icon: "📺", border: "border-emerald-500/30", bg: "bg-emerald-500/[0.06]" },
+  "Free with ads": { icon: "🆓", border: "border-amber-500/30", bg: "bg-amber-500/[0.06]" },
+  Rent: { icon: "💲", border: "border-violet-500/30", bg: "bg-violet-500/[0.06]" },
+  Buy: { icon: "💰", border: "border-rose-500/30", bg: "bg-rose-500/[0.06]" },
+};
+
 function ProviderGroup({
   title: groupTitle,
   items,
@@ -57,10 +64,14 @@ function ProviderGroup({
 }) {
   if (!items?.length) return null;
   const unique = Array.from(new Map(items.map((item) => [item.provider_id, item])).values());
+  const style = GROUP_STYLES[groupTitle] ?? { icon: "", border: "border-white/10", bg: "bg-white/[0.04]" };
 
   return (
-    <div>
-      <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500">{groupTitle}</h3>
+    <div className={`rounded-xl border ${style.border} ${style.bg} p-4`}>
+      <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">
+        {style.icon && <span className="text-sm">{style.icon}</span>}
+        {groupTitle}
+      </h3>
       <div className="mt-3 flex flex-wrap gap-3">
         {unique.map((provider) => {
           const logo = imageUrl(provider.logo_path, "w185");
@@ -70,7 +81,7 @@ function ProviderGroup({
             <div
               key={provider.provider_id}
               title={provider.provider_name}
-              className="flex min-h-12 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] py-2 pl-2 pr-3"
+              className="flex min-h-12 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] py-2 pl-2 pr-3"
             >
               {logo && (
                 <Image
