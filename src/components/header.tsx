@@ -17,6 +17,10 @@ export async function Header() {
           <span>Streaming Finder</span>
         </Link>
         <Link href="/browse" className="hidden min-h-11 items-center text-sm font-semibold text-zinc-300 hover:text-blue-400 md:flex">Browse</Link>
+        <Link href="/travel" className="hidden min-h-11 items-center gap-1.5 text-sm font-semibold text-amber-300 hover:text-amber-200 md:flex">
+          <span>✈️</span>
+          <span>Travel</span>
+        </Link>
         <div className="w-full sm:ml-auto sm:max-w-xl">
           <SearchForm />
         </div>

@@ -68,7 +68,7 @@ export default async function MoviePage({ params }: Props) {
       type="movie"
       details={details}
       cast={credits.cast}
-      providers={providers.results.US}
+      allCountries={providers.results}
     /></>
   );
 }

@@ -66,7 +66,7 @@ export default async function TvPage({ params }: Props) {
       type="tv"
       details={details}
       cast={credits.cast}
-      providers={providers.results.US}
+      allCountries={providers.results}
     /></>
   );
 }

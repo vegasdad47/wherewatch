@@ -17,10 +17,10 @@ interface DetailViewProps {
   type: MediaType;
   details: MovieDetails | TvDetails;
   cast: Person[];
-  providers?: CountryProviders;
+  allCountries: Record<string, CountryProviders>;
 }
 
-export async function DetailView({ type, details, cast, providers }: DetailViewProps) {
+export async function DetailView({ type, details, cast, allCountries }: DetailViewProps) {
   const session = await auth();
   const movie = type === "movie" ? (details as MovieDetails) : null;
   const tv = type === "tv" ? (details as TvDetails) : null;
@@ -96,7 +96,7 @@ export async function DetailView({ type, details, cast, providers }: DetailViewP
               />
             </div>
             {session?.user?.tier !== "premium" && <AdUnit placement="native" />}
-            <Providers providers={providers} title={title} year={date?.slice(0, 4) ?? ""} />
+            <Providers allCountries={allCountries} title={title} year={date?.slice(0, 4) ?? ""} />
             <CastList cast={cast} />
           </div>
         </div>

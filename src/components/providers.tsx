@@ -1,66 +1,40 @@
+"use client";
+
 import Image from "next/image";
-import { CountryProviders, imageUrl, Provider } from "@/lib/tmdb";
+import { useState } from "react";
+import { CountryProviders, imageUrl, Provider } from "@/lib/tmdb-shared";
+import { CountrySelector, getCountryByCode, COUNTRIES } from "@/components/country-selector";
 
 // Map TMDB provider IDs to known streaming service URLs
-// These are the best available deep links — most services don't have public APIs
 const PROVIDER_URLS: Record<number, (title: string, year: string) => string> = {
-  // Netflix — no public API, link to search
   8: (title) => `https://www.netflix.com/search?q=${encodeURIComponent(title)}`,
-  // Amazon Prime Video — can add affiliate tag later
   9: (title) => `https://www.amazon.com/s?k=${encodeURIComponent(title)}&i=instant-video`,
-  // Apple TV+
   2: (title) => `https://tv.apple.com/search?term=${encodeURIComponent(title)}`,
-  // Disney+
   337: (title) => `https://www.disneyplus.com/search?q=${encodeURIComponent(title)}`,
-  // Hulu
   15: (title) => `https://www.hulu.com/search?q=${encodeURIComponent(title)}`,
-  // Max (HBO)
   1899: (title) => `https://play.max.com/search?q=${encodeURIComponent(title)}`,
-  // Paramount+
   531: (title) => `https://www.paramountplus.com/search/?search=${encodeURIComponent(title)}`,
-  // Peacock
   386: (title) => `https://www.peacocktv.com/search?q=${encodeURIComponent(title)}`,
-  // YouTube (rent/buy)
   192: (title) => `https://www.youtube.com/results?search_query=${encodeURIComponent(title + " full movie")}`,
-  // Google Play Movies
   3: (title) => `https://play.google.com/store/search?q=${encodeURIComponent(title)}&c=movies`,
-  // Vudu / Fandango at Home
   7: (title) => `https://www.vudu.com/content/movies/search?searchString=${encodeURIComponent(title)}`,
-  // Microsoft Store
   68: (title) => `https://www.microsoft.com/en-us/search?q=${encodeURIComponent(title + " movie")}`,
-  // Tubi (free)
   373: (title) => `https://tubitv.com/search/${encodeURIComponent(title)}`,
-  // Pluto TV (free)
   300: (title) => `https://pluto.tv/us/search?q=${encodeURIComponent(title)}`,
-  // Freevee (Amazon free)
   613: (title) => `https://www.amazon.com/s?k=${encodeURIComponent(title)}&i=instant-video&rh=p_n_ways_to_watch%3A12007865011`,
-  // The Roku Channel
   207: (title) => `https://therokuchannel.roku.com/search/${encodeURIComponent(title)}`,
-  // Crackle
   12: (title) => `https://www.crackle.com/search?q=${encodeURIComponent(title)}`,
-  // Plex
   538: (title) => `https://app.plex.tv/desktop/#!/search?query=${encodeURIComponent(title)}`,
-  // MGM+
   34: (title) => `https://www.mgmplus.com/search?q=${encodeURIComponent(title)}`,
-  // Starz
   43: (title) => `https://www.starz.com/us/en/search?q=${encodeURIComponent(title)}`,
-  // Showtime
   37: (title) => `https://www.sho.com/search?q=${encodeURIComponent(title)}`,
-  // AMC+
   526: (title) => `https://www.amcplus.com/search?q=${encodeURIComponent(title)}`,
-  // Discovery+
   510: (title) => `https://www.discoveryplus.com/search?q=${encodeURIComponent(title)}`,
-  // Crunchyroll
   283: (title) => `https://www.crunchyroll.com/search?q=${encodeURIComponent(title)}`,
-  // Funimation
   269: (title) => `https://www.funimation.com/search/?q=${encodeURIComponent(title)}`,
-  // BritBox
   151: (title) => `https://www.britbox.com/us/search?q=${encodeURIComponent(title)}`,
-  // Shudder
   99: (title) => `https://www.shudder.com/search?q=${encodeURIComponent(title)}`,
-  // Kanopy
   191: (title) => `https://www.kanopy.com/search?q=${encodeURIComponent(title)}`,
-  // Hoopla
   212: (title) => `https://www.hoopladigital.com/search?q=${encodeURIComponent(title)}`,
 };
 
@@ -133,15 +107,89 @@ function ProviderGroup({
   );
 }
 
+function AlsoAvailableIn({
+  allCountries,
+  selectedCountry,
+}: {
+  allCountries: Record<string, CountryProviders>;
+  selectedCountry: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  // Find other countries that have flatrate providers
+  const otherCountries = COUNTRIES.filter((c) => {
+    if (c.code === selectedCountry) return false;
+    const data = allCountries[c.code];
+    return data?.flatrate && data.flatrate.length > 0;
+  });
+
+  if (otherCountries.length === 0) return null;
+
+  const maxShown = expanded ? otherCountries.length : 8;
+  const visible = otherCountries.slice(0, maxShown);
+  const remaining = otherCountries.length - maxShown;
+
+  return (
+    <div className="mt-5 border-t border-white/10 pt-4">
+      <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+        Also available in
+      </h3>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {visible.map((country) => {
+          const data = allCountries[country.code];
+          const topProviders = (data?.flatrate ?? [])
+            .sort((a, b) => a.display_priority - b.display_priority)
+            .slice(0, 2);
+
+          return (
+            <div
+              key={country.code}
+              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs"
+              title={`${country.name}: ${topProviders.map((p) => p.provider_name).join(", ")}`}
+            >
+              <span className="text-sm leading-none">{country.flag}</span>
+              <span className="text-zinc-300">
+                {topProviders.map((p) => p.provider_name).join(", ")}
+              </span>
+            </div>
+          );
+        })}
+        {remaining > 0 && !expanded && (
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs text-blue-400 hover:text-blue-300 transition"
+          >
+            +{remaining} more
+          </button>
+        )}
+        {expanded && remaining <= 0 && (
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition"
+          >
+            Show less
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function Providers({
-  providers,
+  allCountries,
   title,
   year,
 }: {
-  providers?: CountryProviders;
+  allCountries: Record<string, CountryProviders>;
   title: string;
   year: string;
 }) {
+  const [selectedCountry, setSelectedCountry] = useState("US");
+  const providers = allCountries[selectedCountry];
+  const country = getCountryByCode(selectedCountry);
+
   const freeProviders = [...(providers?.free ?? []), ...(providers?.ads ?? [])];
   const hasProviders = Boolean(
     providers?.flatrate?.length ||
@@ -150,7 +198,6 @@ export function Providers({
       freeProviders.length,
   );
 
-  // Build JustWatch URL as fallback
   const justWatchQuery = encodeURIComponent(title);
   const justWatchUrl = `https://www.justwatch.com/us/search?q=${justWatchQuery}`;
 
@@ -163,7 +210,10 @@ export function Providers({
         <h2 id="streaming-heading" className="text-xl font-bold text-white">
           Where to watch
         </h2>
-        <span className="text-xs text-zinc-500">United States</span>
+        <CountrySelector
+          selected={selectedCountry}
+          onChange={setSelectedCountry}
+        />
       </div>
       {hasProviders ? (
         <div className="mt-6 space-y-6">
@@ -173,8 +223,11 @@ export function Providers({
           <ProviderGroup title="Buy" items={providers?.buy} mediaTitle={title} mediaYear={year} />
         </div>
       ) : (
-        <p className="mt-4 text-zinc-400">Not currently available to stream in the US.</p>
+        <p className="mt-4 text-zinc-400">
+          Not currently available to stream in {country.name}.
+        </p>
       )}
+      <AlsoAvailableIn allCountries={allCountries} selectedCountry={selectedCountry} />
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
         <a
           href={justWatchUrl}
