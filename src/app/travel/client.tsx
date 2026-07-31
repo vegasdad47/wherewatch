@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -75,14 +75,12 @@ export function TravelPageClient({
   data,
 }: {
   country: Country;
-  data: TravelData | null;
+  data: TravelData;
 }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const handleCountryChange = useCallback(
     (code: string) => {
-      setLoading(true);
       router.push(`/travel?country=${code}`);
     },
     [router],
@@ -101,31 +99,7 @@ export function TravelPageClient({
         <CountrySelector selected={country.code} onChange={handleCountryChange} />
       </section>
 
-      {loading && (
-        <div className="mt-10 flex items-center justify-center py-20">
-          <div className="flex items-center gap-3 text-zinc-400">
-            <svg className="size-5 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
-            <span>Loading {country.name} catalog...</span>
-          </div>
-        </div>
-      )}
-
-      {!loading && data && (
-        <div className="mt-10 space-y-14">
+      <div className="mt-10 space-y-14">
           {/* Trending */}
           <section>
             <div className="flex items-center gap-3">
@@ -171,15 +145,6 @@ export function TravelPageClient({
             />
           </section>
         </div>
-      )}
-
-      {!loading && !data && (
-        <div className="mt-10 text-center py-16">
-          <p className="text-zinc-400">
-            Select a country above to see what&apos;s streaming there.
-          </p>
-        </div>
-      )}
     </>
   );
 }

@@ -60,7 +60,7 @@ export default async function TravelPage({
   const params = await searchParams;
   const countryCode = params.country ?? "US";
   const country = getCountryByCode(countryCode);
-  const data = countryCode !== "US" ? await loadCountryData(countryCode) : null;
+  const data = await loadCountryData(countryCode);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
