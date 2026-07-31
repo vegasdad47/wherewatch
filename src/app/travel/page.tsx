@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
 import { getTrending, discoverByProvider } from "@/lib/tmdb";
 import type { SearchResult } from "@/lib/tmdb-shared";
-import { COUNTRIES } from "@/components/country-selector";
+import { COUNTRIES, getCountryByCode } from "@/lib/countries";
 import { TravelPageClient } from "./client";
-
-// Server-safe country lookup (can't import from client component)
-function getCountryByCode(code: string) {
-  return COUNTRIES.find((c) => c.code === code) ?? COUNTRIES[0];
-}
 
 export const metadata: Metadata = {
   title: "Travel Mode",

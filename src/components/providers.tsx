@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 import { CountryProviders, imageUrl, Provider } from "@/lib/tmdb-shared";
-import { CountrySelector, getCountryByCode, COUNTRIES } from "@/components/country-selector";
+import { CountrySelector } from "@/components/country-selector";
+import { getCountryByCode, COUNTRIES } from "@/lib/countries";
 
 // Map TMDB provider IDs to known streaming service URLs
 const PROVIDER_URLS: Record<number, (title: string, year: string) => string> = {

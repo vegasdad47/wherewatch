@@ -4,7 +4,8 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Country, CountrySelector, getCountryByCode } from "@/components/country-selector";
+import { CountrySelector } from "@/components/country-selector";
+import type { Country } from "@/lib/countries";
 import { imageUrl, SearchResult } from "@/lib/tmdb-shared";
 
 interface TravelData {
