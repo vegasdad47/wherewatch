@@ -104,7 +104,7 @@ export function TravelPageClient({
           <section>
             <div className="flex items-center gap-3">
               <h2 className="text-xl font-bold text-white">
-                🔥 Trending in {country.name}
+                🔥 Trending Worldwide
               </h2>
             </div>
             <MediaGrid

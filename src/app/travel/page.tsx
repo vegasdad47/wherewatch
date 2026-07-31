@@ -22,15 +22,32 @@ interface TravelData {
   prime: SearchResult[];
 }
 
-async function loadCountryData(countryCode: string): Promise<TravelData> {
+async function fetchWithTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const [trendingRes, netflixMovies, netflixTv, primeMovies, primeTv] = await Promise.allSettled([
-      getTrending(),
-      discoverByProvider("movie", NETFLIX_ID, countryCode),
-      discoverByProvider("tv", NETFLIX_ID, countryCode),
-      discoverByProvider("movie", PRIME_ID, countryCode),
-      discoverByProvider("tv", PRIME_ID, countryCode),
-    ]);
+    const result = await promise;
+    clearTimeout(timer);
+    return result;
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+async function loadCountryData(countryCode: string): Promise<TravelData> {
+  const TIMEOUT = 8000; // 8s per call, Vercel hobby has 10s total
+
+  const [trendingRes, netflixMovies, netflixTv, primeMovies, primeTv] = await Promise.allSettled([
+    fetchWithTimeout(getTrending(), TIMEOUT),
+    fetchWithTimeout(discoverByProvider("movie", NETFLIX_ID, countryCode), TIMEOUT),
+    fetchWithTimeout(discoverByProvider("tv", NETFLIX_ID, countryCode), TIMEOUT),
+    fetchWithTimeout(discoverByProvider("movie", PRIME_ID, countryCode), TIMEOUT),
+    fetchWithTimeout(discoverByProvider("tv", PRIME_ID, countryCode), TIMEOUT),
+  ]);
 
     const trending = trendingRes.status === "fulfilled" ? trendingRes.value.results.slice(0, 12) : [];
 
@@ -47,9 +64,6 @@ async function loadCountryData(countryCode: string): Promise<TravelData> {
       .slice(0, 12);
 
     return { trending, netflix, prime };
-  } catch {
-    return { trending: [], netflix: [], prime: [] };
-  }
 }
 
 export default async function TravelPage({
