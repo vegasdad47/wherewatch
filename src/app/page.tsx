@@ -6,7 +6,7 @@ import LandingFeatures from "@/components/landing-features";
 import LandingPricing from "@/components/landing-pricing";
 import LandingFAQ from "@/components/landing-faq";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: regenerate at most every 5 minutes
 export const metadata = { alternates: { canonical: "/" } };
 
 export default async function Home() {

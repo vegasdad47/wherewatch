@@ -6,7 +6,7 @@ import { discoverByGenre, getGenres, MediaType } from "@/lib/tmdb";
 import { MyServicesSelector } from "@/components/my-services-selector";
 
 export const metadata: Metadata = { title: "Browse by genre", description: "Browse popular movies and TV shows by genre.", alternates: { canonical: "/browse" } };
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: regenerate at most every 5 minutes
 
 export default async function BrowsePage({ searchParams }: { searchParams: Promise<{ type?: string; genre?: string; page?: string }> }) {
   const params = await searchParams;

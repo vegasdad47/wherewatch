@@ -64,7 +64,7 @@ async function tmdbFetch<T>(
   let lastError: unknown;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      const response = await fetch(url, { cache: "no-store" });
+      const response = await fetch(url, { next: { revalidate: 60 } });
       if (response.status === 404) throw new TmdbError("Not found", 404);
       if (response.status === 429) {
         if (attempt < 2) {

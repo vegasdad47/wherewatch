@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/travel" },
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: regenerate at most every 5 minutes
 
 // Netflix provider ID: 8, Prime Video: 9
 const NETFLIX_ID = 8;
