@@ -5,8 +5,7 @@
       "namespace": "android_app",
       "package_name": "com.wherewatch.app",
       "sha256_cert_fingerprints": [
-        "PLACEHOLDER:REPLACE_WITH_UPLOAD_KEY_SHA256",
-        "PLACEHOLDER:REPLACE_WITH_APP_SIGNING_KEY_SHA256"
+        "B2:E7:40:6C:DC:A4:94:B6:FF:DC:35:77:8B:20:EA:19:CC:79:13:0F:37:45:7B:2A:20:35:0F:55:07:8A:6D:B8"
       ]
     }
   }
