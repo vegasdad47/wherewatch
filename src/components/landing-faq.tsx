@@ -14,9 +14,9 @@ const faqs = [
       "Yes! The core search experience is completely free — no account required, no credit card, no catch. We offer an optional Premium tier ($3/month) that adds features like unlimited watchlist, ad-free browsing, and priority support, but you can search and discover content forever without paying a cent.",
   },
   {
-    question: "How does WhereWatch compare to JustWatch?",
+    question: "Is WhereWatch really free?",
     answer:
-      "Both services help you find where to stream content, but WhereWatch focuses on speed and simplicity. We offer a cleaner interface, faster search, and unique features like the My Services filter that lets you see only results from services you actually have. Plus, our deep links take you directly into the streaming app — one tap and you're watching.",
+      "WhereWatch focuses on speed and simplicity. We offer a cleaner interface, faster search, and unique features like the My Services filter that lets you see only results from services you actually have. Plus, our deep links take you directly into the streaming app — one tap and you're watching.",
   },
   {
     question: "Do I need to create an account?",

@@ -39,16 +39,7 @@ export function Footer() {
                   Powered by TMDB
                 </a>
               </li>
-              <li>
-                <a
-                  href="https://www.justwatch.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm text-zinc-500 hover:text-zinc-300 transition"
-                >
-                  Availability via JustWatch
-                </a>
-              </li>
+
             </ul>
           </div>
         </div>
