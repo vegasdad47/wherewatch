@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { CastList } from "@/components/cast-list";
 import { Providers } from "@/components/providers";
 import { SimilarTitles } from "@/components/similar-titles";
@@ -41,7 +40,7 @@ export async function DetailView({ type, details, cast, allCountries, similar }:
     <article className="relative isolate pb-10">
       {backdrop && (
         <div className="absolute inset-x-0 top-0 -z-10 h-[430px] overflow-hidden">
-          <Image src={backdrop} alt="" fill priority sizes="100vw" className="object-cover opacity-25" />
+          <img src={backdrop} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0f]/35 via-[#0a0a0f]/80 to-[#0a0a0f]" />
         </div>
       )}
@@ -50,13 +49,10 @@ export async function DetailView({ type, details, cast, allCountries, similar }:
           <div className="mx-auto w-48 md:mx-0 md:w-full">
             <div className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-zinc-900 shadow-2xl shadow-black/50 ring-1 ring-white/10">
               {poster ? (
-                <Image
+                <img
                   src={poster}
                   alt={`${title} poster`}
-                  fill
-                  priority
-                  sizes="(max-width: 767px) 192px, 260px"
-                  className="object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : (
                 <div className="grid h-full place-items-center text-zinc-600">No poster</div>

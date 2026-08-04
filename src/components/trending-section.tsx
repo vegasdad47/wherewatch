@@ -1,6 +1,5 @@
 import { getTrending as getTmdbTrending, getMovie, getTv, imageUrl } from "@/lib/tmdb";
 import { getTrending as getOurTrending, TrendingItem } from "@/lib/trending";
-import Image from "next/image";
 import Link from "next/link";
 
 interface TrendingRowProps {
@@ -56,12 +55,11 @@ async function TrendingRow({ type, label }: TrendingRowProps) {
                 >
                   <div className="aspect-[2/3]">
                     {posterUrl ? (
-                      <Image
+                      <img
                         src={posterUrl}
                         alt={title || ""}
-                        fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-                        className="object-cover"
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover"
                       />
                     ) : (
                       <div className="grid h-full place-items-center text-zinc-700">
@@ -128,12 +126,11 @@ async function TrendingFallback({ type, label }: { type: "movie" | "tv"; label: 
             >
               <div className="aspect-[2/3]">
                 {posterUrl ? (
-                  <Image
+                  <img
                     src={posterUrl}
                     alt={title || ""}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-                    className="object-cover"
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
                   <div className="grid h-full place-items-center text-zinc-700">

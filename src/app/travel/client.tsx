@@ -2,7 +2,6 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { CountrySelector } from "@/components/country-selector";
 import type { Country } from "@/lib/countries";
@@ -43,12 +42,11 @@ function MediaGrid({
           >
             <div className="aspect-[2/3]">
               {poster ? (
-                <Image
+                <img
                   src={poster}
                   alt={title || ""}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-                  className="object-cover"
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : (
                 <div className="grid h-full place-items-center text-zinc-700">No poster</div>

@@ -3,13 +3,9 @@ import withBundleAnalyzerFactory from "@next/bundle-analyzer";
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "image.tmdb.org",
-        pathname: "/t/p/**",
-      },
-    ],
+    // Disable Vercel image optimization — TMDB already serves optimized WebP.
+    // This saves ~$60/month in image optimization fees.
+    unoptimized: true,
   },
 };
 

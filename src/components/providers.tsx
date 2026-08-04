@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { CountryProviders, imageUrl, Provider } from "@/lib/tmdb-shared";
 import { CountrySelector } from "@/components/country-selector";
@@ -85,7 +84,7 @@ function ProviderGroup({
               className="flex min-h-12 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] py-2 pl-2 pr-3"
             >
               {logo && (
-                <Image
+                <img
                   src={logo}
                   alt=""
                   width={34}

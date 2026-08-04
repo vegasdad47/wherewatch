@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { MediaCard } from "@/components/media-card";
 import { getPerson, getPersonCredits, imageUrl, TmdbError } from "@/lib/tmdb";
@@ -34,7 +33,7 @@ export default async function PersonPage({ params }: Props) {
   };
   return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} /><div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
     <div className="grid gap-8 sm:grid-cols-[220px_1fr] lg:gap-12">
-      <div className="mx-auto w-48 sm:w-full"><div className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-white/10">{profile ? <Image src={profile} alt={person.name} fill priority sizes="220px" className="object-cover" /> : <div className="grid h-full place-items-center text-6xl">👤</div>}</div></div>
+      <div className="mx-auto w-48 sm:w-full"><div className="relative aspect-[2/3] overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-white/10">{profile ? <img src={profile} alt={person.name} className="absolute inset-0 h-full w-full object-cover" /> : <div className="grid h-full place-items-center text-6xl">👤</div>}</div></div>
       <div><p className="text-sm font-bold uppercase tracking-widest text-blue-400">{person.known_for_department}</p><h1 className="mt-2 text-4xl font-black sm:text-5xl">{person.name}</h1>
       <div className="mt-4 text-sm text-zinc-400">{person.birthday && <span>{person.birthday}{person.deathday ? ` – ${person.deathday}` : ""}</span>}{person.place_of_birth && <span> · {person.place_of_birth}</span>}</div>
       <h2 className="mt-8 text-xl font-bold">Biography</h2><p className="mt-3 max-w-3xl whitespace-pre-line leading-7 text-zinc-300">{person.biography || "No biography is available for this person."}</p></div>

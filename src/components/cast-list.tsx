@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { imageUrl, Person } from "@/lib/tmdb";
 
@@ -19,12 +18,11 @@ export function CastList({ cast }: { cast: Person[] }) {
             <article>
               <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-white/10">
                 {profile ? (
-                  <Image
+                  <img
                     src={profile}
                     alt={person.name}
-                    fill
-                    sizes="112px"
-                    className="object-cover transition group-hover:scale-105"
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-105"
                   />
                 ) : (
                   <div className="grid h-full place-items-center text-3xl text-zinc-700">👤</div>

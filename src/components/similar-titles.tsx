@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { imageUrl, SearchResult } from "@/lib/tmdb-shared";
 
@@ -34,13 +33,11 @@ export function SimilarTitles({
             >
               <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-white/10 transition duration-200 group-hover:-translate-y-1 group-hover:ring-blue-500/70">
                 {poster ? (
-                  <Image
+                  <img
                     src={poster}
                     alt={title}
-                    fill
                     loading="lazy"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-                    className="object-cover"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
                   <div className="grid h-full place-items-center px-2 text-center text-xs text-zinc-600">
