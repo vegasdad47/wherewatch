@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import { Geist } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
@@ -51,6 +52,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Analytics />
         <Script src="/register-sw.js" strategy="afterInteractive" />
       </body>
     </html>

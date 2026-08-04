@@ -210,9 +210,6 @@ export function Providers({
       freeProviders.length,
   );
 
-  const justWatchQuery = encodeURIComponent(title);
-  const justWatchUrl = `https://www.justwatch.com/us/search?q=${justWatchQuery}`;
-
   return (
     <section
       aria-labelledby="streaming-heading"
@@ -240,16 +237,6 @@ export function Providers({
         </p>
       )}
       <AlsoAvailableIn allCountries={allCountries} selectedCountry={selectedCountry} />
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <a
-          href={justWatchUrl}
-          target="_blank"
-          rel="nofollow noopener noreferrer"
-          className="inline-flex min-h-11 items-center text-sm font-semibold text-blue-400 hover:text-blue-300"
-        >
-          View all options on JustWatch ↗
-        </a>
-      </div>
     </section>
   );
 }
