@@ -46,9 +46,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <meta name="google-adsense-account" content="ca-pub-8685630412421890" />
-        {process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
-          <Script async strategy="afterInteractive" src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`} crossOrigin="anonymous" />
-        )}
+        <Script async strategy="afterInteractive" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8685630412421890" crossOrigin="anonymous" />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
