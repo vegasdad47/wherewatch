@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const checkout = event.data.object;
     const userId = checkout.metadata?.userId ?? checkout.client_reference_id;
     if (userId && typeof checkout.customer === "string") {
-      await db.from("users").update({ stripe_customer_id: checkout.customer, updated_at: new Date().toISOString() }).eq("id", userId);
+      await db.from("users").update({ stripe_customer_id: checkout.customer, tier: "premium", updated_at: new Date().toISOString() }).eq("id", userId);
     }
   }
 
