@@ -34,8 +34,7 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ url: checkout.url });
   } catch (err: any) {
-    const msg = err?.message || String(err);
-    console.error("Stripe checkout error:", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.error("Stripe checkout error:", err?.message || String(err));
+    return NextResponse.json({ error: "Billing is temporarily unavailable. Please try again." }, { status: 500 });
   }
 }
