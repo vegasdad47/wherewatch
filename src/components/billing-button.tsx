@@ -16,10 +16,15 @@ export function BillingButton({ action, children }: { action: "checkout" | "port
       return;
     }
     setBusy(true); setError("");
-    const response = await fetch(`/api/stripe/${action}`, { method: "POST" });
-    const data = await response.json();
-    if (response.ok && data.url) window.location.href = data.url;
-    else { setError(data.error ?? "Something went wrong."); setBusy(false); }
+    try {
+      const response = await fetch(`/api/stripe/${action}`, { method: "POST" });
+      const data = await response.json();
+      if (response.ok && data.url) window.location.href = data.url;
+      else { setError(data.error ?? "Something went wrong."); setBusy(false); }
+    } catch (err) {
+      setError("Network error. Please try again.");
+      setBusy(false);
+    }
   }
 
   // Hide Stripe buttons entirely in the native app (Play policy compliance)

@@ -1,6 +1,8 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import { CACHE_TTL, makeCacheKey, withCache } from "@/lib/cache";
+import { getTmdbLanguage } from "@/lib/locale";
 import type {
   MediaType,
   SearchResponse,
@@ -35,6 +37,19 @@ export { imageUrl } from "@/lib/tmdb-shared";
 
 const API_URL = "https://api.themoviedb.org/3";
 
+/**
+ * Auto-detect the user's preferred language from the request's Accept-Language header.
+ * Falls back to "en-US" if headers aren't available (e.g., during build or in non-request contexts).
+ */
+async function detectLanguage(): Promise<string> {
+  try {
+    const heads = await headers();
+    return getTmdbLanguage(heads.get("accept-language"));
+  } catch {
+    return "en-US";
+  }
+}
+
 export class TmdbError extends Error {
   constructor(
     message: string,
@@ -48,6 +63,7 @@ export class TmdbError extends Error {
 async function tmdbFetch<T>(
   endpoint: string,
   params: Record<string, string | number> = {},
+  language = "en-US",
 ): Promise<T> {
   const key = process.env.TMDB_API_KEY;
   if (!key || key === "your_tmdb_api_key_here") {
@@ -56,7 +72,7 @@ async function tmdbFetch<T>(
 
   const url = new URL(`${API_URL}${endpoint}`);
   url.searchParams.set("api_key", key);
-  url.searchParams.set("language", "en-US");
+  url.searchParams.set("language", language);
   Object.entries(params).forEach(([name, value]) =>
     url.searchParams.set(name, String(value)),
   );
@@ -94,86 +110,97 @@ async function tmdbFetch<T>(
   );
 }
 
-export function searchMulti(query: string, page = 1) {
+export async function searchMulti(query: string, page = 1, language = "") {
+  const lang = language || await detectLanguage();
   const cleanQuery = query.trim();
   return withCache(
-    makeCacheKey("/search/multi", { query: cleanQuery, page }),
+    makeCacheKey("/search/multi", { query: cleanQuery, page, language: lang }),
     CACHE_TTL.search,
     () =>
       tmdbFetch<SearchResponse>("/search/multi", {
         query: cleanQuery,
         page,
         include_adult: "false",
-      }),
+      }, lang),
   );
 }
 
-export function getMovie(id: number) {
-  return withCache(makeCacheKey(`/movie/${id}`), CACHE_TTL.details, () =>
-    tmdbFetch<MovieDetails>(`/movie/${id}`),
+export async function getMovie(id: number, language = "") {
+  const lang = language || await detectLanguage();
+  return withCache(makeCacheKey(`/movie/${id}`, { language: lang }), CACHE_TTL.details, () =>
+    tmdbFetch<MovieDetails>(`/movie/${id}`, {}, lang),
   );
 }
 
-export function getTv(id: number) {
-  return withCache(makeCacheKey(`/tv/${id}`), CACHE_TTL.details, () =>
-    tmdbFetch<TvDetails>(`/tv/${id}`),
+export async function getTv(id: number, language = "") {
+  const lang = language || await detectLanguage();
+  return withCache(makeCacheKey(`/tv/${id}`, { language: lang }), CACHE_TTL.details, () =>
+    tmdbFetch<TvDetails>(`/tv/${id}`, {}, lang),
   );
 }
 
-export function getWatchProviders(type: MediaType, id: number) {
+export async function getWatchProviders(type: MediaType, id: number, language = "") {
+  const lang = language || await detectLanguage();
   const endpoint = `/${type}/${id}/watch/providers`;
-  return withCache(makeCacheKey(endpoint), CACHE_TTL.providers, () =>
-    tmdbFetch<ProviderResponse>(endpoint),
+  return withCache(makeCacheKey(endpoint, { language: lang }), CACHE_TTL.providers, () =>
+    tmdbFetch<ProviderResponse>(endpoint, {}, lang),
   );
 }
 
-export function getCredits(type: MediaType, id: number) {
+export async function getCredits(type: MediaType, id: number, language = "") {
+  const lang = language || await detectLanguage();
   const endpoint = `/${type}/${id}/credits`;
-  return withCache(makeCacheKey(endpoint), CACHE_TTL.details, () =>
-    tmdbFetch<CreditsResponse>(endpoint),
+  return withCache(makeCacheKey(endpoint, { language: lang }), CACHE_TTL.details, () =>
+    tmdbFetch<CreditsResponse>(endpoint, {}, lang),
   );
 }
 
-export function getTrending(page = 1) {
+export async function getTrending(page = 1, language = "") {
+  const lang = language || await detectLanguage();
   return withCache(
-    makeCacheKey("/trending/all/week", { page }),
+    makeCacheKey("/trending/all/week", { page, language: lang }),
     CACHE_TTL.trending,
-    () => tmdbFetch<SearchResponse>("/trending/all/week", { page }),
+    () => tmdbFetch<SearchResponse>("/trending/all/week", { page }, lang),
   );
 }
 
-export function getNowPlaying(page = 1) {
+export async function getNowPlaying(page = 1, language = "") {
+  const lang = language || await detectLanguage();
   return withCache(
-    makeCacheKey("/movie/now_playing", { page }),
+    makeCacheKey("/movie/now_playing", { page, language: lang }),
     CACHE_TTL.trending,
-    () => tmdbFetch<SearchResponse>("/movie/now_playing", { page }),
+    () => tmdbFetch<SearchResponse>("/movie/now_playing", { page }, lang),
   );
 }
 
-export function getPerson(id: number) {
-  return withCache(makeCacheKey(`/person/${id}`), CACHE_TTL.details, () =>
-    tmdbFetch<PersonDetails>(`/person/${id}`),
+export async function getPerson(id: number, language = "") {
+  const lang = language || await detectLanguage();
+  return withCache(makeCacheKey(`/person/${id}`, { language: lang }), CACHE_TTL.details, () =>
+    tmdbFetch<PersonDetails>(`/person/${id}`, {}, lang),
   );
 }
 
-export function getPersonCredits(id: number) {
+export async function getPersonCredits(id: number, language = "") {
+  const lang = language || await detectLanguage();
   const endpoint = `/person/${id}/combined_credits`;
-  return withCache(makeCacheKey(endpoint), CACHE_TTL.details, () =>
-    tmdbFetch<PersonCreditsResponse>(endpoint),
+  return withCache(makeCacheKey(endpoint, { language: lang }), CACHE_TTL.details, () =>
+    tmdbFetch<PersonCreditsResponse>(endpoint, {}, lang),
   );
 }
 
-export function getGenres(type: MediaType) {
+export async function getGenres(type: MediaType, language = "") {
+  const lang = language || await detectLanguage();
   const endpoint = `/genre/${type}/list`;
-  return withCache(makeCacheKey(endpoint), CACHE_TTL.details, () =>
-    tmdbFetch<GenreResponse>(endpoint),
+  return withCache(makeCacheKey(endpoint, { language: lang }), CACHE_TTL.details, () =>
+    tmdbFetch<GenreResponse>(endpoint, {}, lang),
   );
 }
 
-export function discoverByGenre(type: MediaType, genreId: number, page = 1) {
+export async function discoverByGenre(type: MediaType, genreId: number, page = 1, language = "") {
+  const lang = language || await detectLanguage();
   const endpoint = `/discover/${type}`;
   return withCache(
-    makeCacheKey(endpoint, { genreId, page }),
+    makeCacheKey(endpoint, { genreId, page, language: lang }),
     CACHE_TTL.trending,
     async () => {
       const response = await tmdbFetch<SearchResponse>(endpoint, {
@@ -181,7 +208,7 @@ export function discoverByGenre(type: MediaType, genreId: number, page = 1) {
         page,
         sort_by: "popularity.desc",
         include_adult: "false",
-      });
+      }, lang);
       return {
         ...response,
         results: response.results.map((result) => ({ ...result, media_type: type })),
@@ -190,15 +217,17 @@ export function discoverByGenre(type: MediaType, genreId: number, page = 1) {
   );
 }
 
-export function discoverByProvider(
+export async function discoverByProvider(
   type: MediaType,
   providerId: number,
   region: string,
   page = 1,
+  language = "",
 ) {
+  const lang = language || await detectLanguage();
   const endpoint = `/discover/${type}`;
   return withCache(
-    makeCacheKey(endpoint, { providerId, region, page }),
+    makeCacheKey(endpoint, { providerId, region, page, language: lang }),
     CACHE_TTL.trending,
     async () => {
       const response = await tmdbFetch<SearchResponse>(endpoint, {
@@ -207,7 +236,7 @@ export function discoverByProvider(
         page,
         sort_by: "popularity.desc",
         include_adult: "false",
-      });
+      }, lang);
       return {
         ...response,
         results: response.results.map((result) => ({ ...result, media_type: type })),
@@ -216,27 +245,30 @@ export function discoverByProvider(
   );
 }
 
-export function getTrendingByRegion(region: string, page = 1) {
+export async function getTrendingByRegion(region: string, page = 1, language = "") {
+  const lang = language || await detectLanguage();
   return withCache(
-    makeCacheKey("/trending/all/week", { region, page }),
+    makeCacheKey("/trending/all/week", { region, page, language: lang }),
     CACHE_TTL.trending,
     () =>
       tmdbFetch<SearchResponse>("/trending/all/week", {
         page,
-      }),
+      }, lang),
   );
 }
 
-export function getSimilar(type: MediaType, id: number) {
+export async function getSimilar(type: MediaType, id: number, language = "") {
+  const lang = language || await detectLanguage();
   const endpoint = `/${type}/${id}/similar`;
-  return withCache(makeCacheKey(endpoint), CACHE_TTL.trending, () =>
-    tmdbFetch<SearchResponse>(endpoint, { include_adult: "false" }),
+  return withCache(makeCacheKey(endpoint, { language: lang }), CACHE_TTL.trending, () =>
+    tmdbFetch<SearchResponse>(endpoint, { include_adult: "false" }, lang),
   );
 }
 
-export function getRecommendations(type: MediaType, id: number) {
+export async function getRecommendations(type: MediaType, id: number, language = "") {
+  const lang = language || await detectLanguage();
   const endpoint = `/${type}/${id}/recommendations`;
-  return withCache(makeCacheKey(endpoint), CACHE_TTL.trending, () =>
-    tmdbFetch<SearchResponse>(endpoint, { include_adult: "false" }),
+  return withCache(makeCacheKey(endpoint, { language: lang }), CACHE_TTL.trending, () =>
+    tmdbFetch<SearchResponse>(endpoint, { include_adult: "false" }, lang),
   );
 }
