@@ -29,7 +29,8 @@ export async function POST(request: Request) {
 
   if (["customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"].includes(event.type)) {
     const subscription = event.data.object as Stripe.Subscription;
-    const userId = subscription.metadata.userId;
+    const userId = subscription.metadata?.userId;
+    console.log("Webhook subscription event:", { type: event.type, status: subscription.status, userId, metadata: subscription.metadata });
     if (userId) {
       const premium = ["active", "trialing"].includes(subscription.status);
       const item = subscription.items.data[0];
