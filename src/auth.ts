@@ -1,10 +1,10 @@
 import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
-import { compare } from "bcryptjs";
+import Apple from "next-auth/providers/apple";
 import { getSupabaseAdmin, UserTier } from "@/lib/supabase";
 
 const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+const appleEnabled = Boolean(process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
@@ -12,29 +12,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/signin" },
   providers: [
-    Credentials({
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        const email = typeof credentials.email === "string" ? credentials.email.trim().toLowerCase() : "";
-        const password = typeof credentials.password === "string" ? credentials.password : "";
-        const db = getSupabaseAdmin();
-        if (!email || !password || !db) return null;
-
-        const { data } = await db.from("users").select("*").eq("email", email).maybeSingle();
-        if (!data?.password_hash || !(await compare(password, data.password_hash))) return null;
-        return { id: data.id, email: data.email, name: data.name, image: data.image, tier: data.tier ?? "free" };
-      },
-    }),
     ...(googleEnabled
       ? [Google({ clientId: process.env.GOOGLE_CLIENT_ID!, clientSecret: process.env.GOOGLE_CLIENT_SECRET! })]
+      : []),
+    ...(appleEnabled
+      ? [Apple({ clientId: process.env.APPLE_CLIENT_ID!, clientSecret: process.env.APPLE_CLIENT_SECRET! })]
       : []),
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider !== "google") return true;
+      // Handle OAuth providers (Google, Apple)
+      if (!account || account.provider === "credentials") return true;
       const db = getSupabaseAdmin();
       if (!db || !user.email) return false;
 
