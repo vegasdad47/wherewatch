@@ -23,8 +23,8 @@ export default function AboutPage() {
 
         <p>
           This happened more times than I can count. And I&apos;m not alone — every household with
-          multiple streaming subscriptions knows this frustration. You know <em>what</em> you want to
-          watch. You just don&apos;t know <em>where</em>.
+          multiple streaming subscriptions knows this frustration. You know what you want to
+          watch. You just don&apos;t know where.
         </p>
 
         <p>
