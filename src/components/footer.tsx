@@ -7,9 +7,13 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-3">
           <div>
             <h3 className="text-sm font-bold text-white">WhereWatch</h3>
-            <p className="mt-2 text-sm text-zinc-500">
-              Find where to stream any movie or TV show across 30+ services.
-            </p>
+            <ul className="mt-2 space-y-1.5">
+              <li>
+                <Link href="/about" className="text-sm text-zinc-500 hover:text-zinc-300 transition">
+                  About
+                </Link>
+              </li>
+            </ul>
           </div>
           <div>
             <h3 className="text-sm font-bold text-white">Legal</h3>

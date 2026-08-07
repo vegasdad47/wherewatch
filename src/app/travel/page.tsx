@@ -4,13 +4,28 @@ import type { SearchResult } from "@/lib/tmdb-shared";
 import { COUNTRIES, getCountryByCode } from "@/lib/countries";
 import { TravelPageClient } from "./client";
 
-export const metadata: Metadata = {
-  title: "Travel Mode",
-  description: "See what's streaming when you land. Browse trending movies and TV shows by country.",
-  alternates: { canonical: "/travel" },
-};
-
 export const revalidate = 300; // ISR: regenerate at most every 5 minutes
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ country?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const countryCode = params.country ?? "US";
+  const country = getCountryByCode(countryCode);
+  const countryName = country?.name ?? "your destination";
+
+  const title = `What's Streaming in ${countryName} — WhereWatch Travel Mode`;
+  const description = `See what's trending on Netflix and Prime Video in ${countryName}. Find where to watch movies and TV shows when you travel.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "/travel" },
+    openGraph: { title, description },
+  };
+}
 
 // Netflix provider ID: 8, Prime Video: 9
 const NETFLIX_ID = 8;

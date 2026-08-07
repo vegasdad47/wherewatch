@@ -5,8 +5,40 @@ import { Pagination } from "@/components/pagination";
 import { discoverByGenre, getGenres, MediaType } from "@/lib/tmdb";
 import { MyServicesSelector } from "@/components/my-services-selector";
 
-export const metadata: Metadata = { title: "Browse by genre", description: "Browse popular movies and TV shows by genre.", alternates: { canonical: "/browse" } };
 export const revalidate = 300; // ISR: regenerate at most every 5 minutes
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string; genre?: string; page?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const type: MediaType = params.type === "tv" ? "tv" : "movie";
+  const typeLabel = type === "movie" ? "Movies" : "TV Shows";
+
+  let genreName = "";
+  if (params.genre) {
+    try {
+      const genres = await getGenres(type);
+      const genre = genres.genres.find((g) => g.id === Number(params.genre));
+      if (genre) genreName = genre.name;
+    } catch { /* fall through */ }
+  }
+
+  const title = genreName
+    ? `Best ${genreName} ${typeLabel} — Where to Watch`
+    : `Browse ${typeLabel} by Genre — WhereWatch`;
+  const description = genreName
+    ? `Discover the most popular ${genreName.toLowerCase()} ${typeLabel.toLowerCase()}. Find where to stream, rent, or buy ${genreName.toLowerCase()} ${typeLabel.toLowerCase()}.`
+    : `Browse popular movies and TV shows by genre. Find where to stream, rent, or buy your next watch.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "/browse" },
+    openGraph: { title, description },
+  };
+}
 
 export default async function BrowsePage({ searchParams }: { searchParams: Promise<{ type?: string; genre?: string; page?: string }> }) {
   const params = await searchParams;
