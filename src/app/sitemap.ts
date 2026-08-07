@@ -15,46 +15,51 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/terms`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
   ];
 
-  // Collect movie and TV IDs from multiple sources
   const ids = new Set<number>();
   const tvIds = new Set<number>();
 
-  try {
-    // Trending (all types)
-    const trending = await getTrending(1);
-    for (const item of trending.results) {
-      if (item.media_type === "movie") ids.add(item.id);
-      else if (item.media_type === "tv") tvIds.add(item.id);
+  // Helper: add results from a page fetch
+  function collect(results: Array<{ id: number; media_type?: string }>, type?: "movie" | "tv") {
+    for (const item of results) {
+      if (type === "movie" || item.media_type === "movie") ids.add(item.id);
+      else if (type === "tv" || item.media_type === "tv") tvIds.add(item.id);
     }
-  } catch { /* skip on failure */ }
+  }
 
-  try {
-    // Now playing movies
-    const nowPlaying = await getNowPlaying(1);
-    for (const item of nowPlaying.results) ids.add(item.id);
-  } catch { /* skip on failure */ }
+  // Trending — pages 1-5 (100 results)
+  for (let page = 1; page <= 5; page++) {
+    try {
+      const trending = await getTrending(page);
+      collect(trending.results);
+    } catch { break; }
+  }
 
-  // Popular by genre (top 3 genres for each type)
+  // Now playing movies — pages 1-3 (60 results)
+  for (let page = 1; page <= 3; page++) {
+    try {
+      const nowPlaying = await getNowPlaying(page);
+      collect(nowPlaying.results, "movie");
+    } catch { break; }
+  }
+
+  // All genres for both types — page 1 of each
   try {
     const [movieGenres, tvGenres] = await Promise.all([
       getGenres("movie"),
       getGenres("tv"),
     ]);
 
-    const topMovieGenres = movieGenres.genres.slice(0, 3);
-    const topTvGenres = tvGenres.genres.slice(0, 3);
-
-    for (const genre of topMovieGenres) {
+    for (const genre of movieGenres.genres) {
       try {
         const res = await discoverByGenre("movie", genre.id, 1);
-        for (const item of res.results) ids.add(item.id);
+        collect(res.results, "movie");
       } catch { /* skip */ }
     }
 
-    for (const genre of topTvGenres) {
+    for (const genre of tvGenres.genres) {
       try {
         const res = await discoverByGenre("tv", genre.id, 1);
-        for (const item of res.results) tvIds.add(item.id);
+        collect(res.results, "tv");
       } catch { /* skip */ }
     }
   } catch { /* skip on failure */ }
